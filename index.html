@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#4f46e5" />
+  <link rel="manifest" href="manifest.json" />
   <title>LocalHub Login — Everything Local. One Trusted Platform.</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -108,16 +110,18 @@
               </div>
             </div>
 
-            <!-- Human Verification Card (Spacious, Clear, Accessible) -->
+            <!-- Per-login human verification challenge -->
             <div class="verification-card" id="humanVerifyCard">
               <div class="verification-heading">
-                <span class="lock-emoji">🔒</span> Human verification
+                <span class="lock-emoji">🔒</span> Enter the security code
               </div>
-              <label class="checkbox-label" for="verification">
-                <input type="checkbox" id="verification" />
-                <span class="robot-label">🤖 I'm not a robot</span>
-                <span class="recaptcha-tag">Protected</span>
-              </label>
+              <div class="captcha-challenge-row">
+                <strong id="captchaCode" aria-label="Security code">------</strong>
+                <button type="button" class="captcha-refresh-btn" id="refreshCaptchaBtn" title="Generate a new security code" aria-label="Generate a new security code">↻</button>
+              </div>
+              <label for="captchaInput">Type the code above</label>
+              <input id="captchaInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" maxlength="6" placeholder="Enter the 6-character code" required />
+              <input id="captchaChallengeId" type="hidden" />
             </div>
 
             <!-- Primary Action Button -->

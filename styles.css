@@ -1725,6 +1725,56 @@ button {
   cursor: pointer;
 }
 
+.captcha-challenge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.captcha-challenge-row strong {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: 1px dashed #94a3b8;
+  border-radius: 12px;
+  background: repeating-linear-gradient(-12deg, #eef2ff 0, #eef2ff 8px, #ffffff 8px, #ffffff 16px);
+  color: #1e1b4b;
+  font: 900 1.25rem/1.1 'Courier New', monospace;
+  letter-spacing: 0.22em;
+  text-align: center;
+  user-select: none;
+}
+
+.captcha-refresh-btn {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--primary);
+  font-size: 1.3rem;
+}
+
+.verification-card > label[for="captchaInput"] {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.verification-card #captchaInput {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  outline: none;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.verification-card #captchaInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+}
+
 .trust-slider-card {
   background: #ffffff;
   border: 1.5px solid #e0e7ff;

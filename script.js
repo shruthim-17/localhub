@@ -303,6 +303,9 @@ async function fetchJson(endpoint, options = {}) {
 // INITIALIZATION
 // ========================================================
 document.addEventListener('DOMContentLoaded', () => {
+  if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('/sw.js').catch(error => console.warn('Offline app shell unavailable:', error));
+  }
   setupLanguageSupport();
   setupActionVoiceFeedback();
   setupUserHeader();
@@ -387,7 +390,27 @@ function initAuthPage() {
   const toggleConfirmPassBtn = document.getElementById('toggleConfirmPasswordBtn');
   const passInput = document.getElementById('password');
   const confirmPassInput = document.getElementById('confirmPassword');
-  const verifyCheck = document.getElementById('verification');
+  const captchaCode = document.getElementById('captchaCode');
+  const captchaInput = document.getElementById('captchaInput');
+  const captchaChallengeId = document.getElementById('captchaChallengeId');
+  const refreshCaptchaBtn = document.getElementById('refreshCaptchaBtn');
+
+  async function loadCaptchaChallenge() {
+    const data = await fetchJson('/login-challenge');
+    if (!data || !data.success) {
+      if (captchaCode) captchaCode.textContent = '------';
+      return;
+    }
+    if (captchaCode) captchaCode.textContent = data.code;
+    if (captchaChallengeId) captchaChallengeId.value = data.challengeId;
+    if (captchaInput) {
+      captchaInput.value = '';
+      captchaInput.focus();
+    }
+  }
+
+  loadCaptchaChallenge();
+  if (refreshCaptchaBtn) refreshCaptchaBtn.addEventListener('click', loadCaptchaChallenge);
 
   let currentTab = 'login';
 
@@ -442,8 +465,9 @@ function initAuthPage() {
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      if (verifyCheck && !verifyCheck.checked) {
-        alert('Please check the "I am not a robot" verification box.');
+      const challengeAnswer = captchaInput ? captchaInput.value.trim().toUpperCase() : '';
+      if (!captchaChallengeId?.value || !challengeAnswer) {
+        alert('Please enter the security code shown above.');
         return;
       }
 
@@ -474,7 +498,7 @@ function initAuthPage() {
 
         const res = await fetchJson('/register', {
           method: 'POST',
-          body: JSON.stringify({ email, password, name: fullName })
+          body: JSON.stringify({ email, password, name: fullName, challengeId: captchaChallengeId.value, challengeAnswer })
         });
 
         submitBtn.disabled = false;
@@ -490,6 +514,7 @@ function initAuthPage() {
           window.location.href = 'details.html';
         } else {
           alert((res && res.error) || 'Registration failed. Please try again.');
+          loadCaptchaChallenge();
         }
       } else {
         submitBtn.disabled = true;
@@ -497,7 +522,7 @@ function initAuthPage() {
 
         const res = await fetchJson('/login', {
           method: 'POST',
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email, password, challengeId: captchaChallengeId.value, challengeAnswer })
         });
 
         submitBtn.disabled = false;
@@ -513,6 +538,7 @@ function initAuthPage() {
           window.location.href = 'details.html';
         } else {
           alert((res && res.error) || 'Login failed. Please check your details and try again.');
+          loadCaptchaChallenge();
         }
       }
     });

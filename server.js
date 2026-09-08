@@ -319,6 +319,16 @@ let mongoReady = false;
 const otpStore = new Map();
 const feedbackStore = [];
 const supportRequests = [];
+const loginChallenges = new Map();
+
+function createLoginChallenge() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let index = 0; index < 6; index += 1) code += alphabet[crypto.randomInt(alphabet.length)];
+  const challengeId = crypto.randomUUID();
+  loginChallenges.set(challengeId, { code, expiresAt: Date.now() + 5 * 60 * 1000 });
+  return { challengeId, code };
+}
 
 // Mongoose Schemas
 const userSchema = new mongoose.Schema({
@@ -418,15 +428,28 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, database: mongoReady ? 'connected' : 'in-memory', authMode: 'password' });
 });
 
+app.get('/api/login-challenge', (req, res) => {
+  res.json({ success: true, ...createLoginChallenge() });
+});
+
+function consumeLoginChallenge(challengeId, challengeAnswer) {
+  const challenge = loginChallenges.get(String(challengeId || ''));
+  loginChallenges.delete(String(challengeId || ''));
+  return Boolean(challenge && challenge.expiresAt >= Date.now() && String(challengeAnswer || '').trim().toUpperCase() === challenge.code);
+}
+
 // Authentication
 app.post('/api/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, challengeId, challengeAnswer } = req.body;
   const normalizedEmail = email ? email.trim().toLowerCase() : '';
   const trimmedName = name ? name.trim() : '';
   const trimmedPassword = password ? password.trim() : '';
 
   if (!trimmedName || !normalizedEmail || !trimmedPassword || trimmedPassword.length < 6) {
     return res.status(400).json({ success: false, error: 'Full name, valid email, and 6-digit password are required.' });
+  }
+  if (!consumeLoginChallenge(challengeId, challengeAnswer)) {
+    return res.status(400).json({ success: false, error: 'Enter the current security code correctly.' });
   }
 
   const existingUser = mongoReady
@@ -464,12 +487,16 @@ app.post('/api/register', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, challengeId, challengeAnswer } = req.body;
   const normalizedEmail = email ? email.trim().toLowerCase() : '';
   const trimmedPassword = password ? password.trim() : '';
 
   if (!normalizedEmail || !trimmedPassword) {
     return res.status(400).json({ success: false, error: 'Email and password are required.' });
+  }
+
+  if (!consumeLoginChallenge(challengeId, challengeAnswer)) {
+    return res.status(400).json({ success: false, error: 'Enter the current security code correctly.' });
   }
 
   const user = mongoReady

@@ -1,0 +1,19 @@
+{
+  "name": "LocalHub - Trusted Local Services",
+  "short_name": "LocalHub",
+  "description": "Find nearby services, work, and community help.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/localhub-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
