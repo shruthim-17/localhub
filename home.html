@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocalHub — Home Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="page-shell">
+    <header class="page-topbar">
+      <div>
+        <p class="eyebrow" id="homeGreeting">Welcome to LocalHub</p>
+        <h1>Find services, jobs, and local help nearby.</h1>
+        
+        <div class="location-badge-wrap" id="openLocationModalBtn" title="Click to Change Location">
+          <span class="loc-pin-icon">📍</span>
+          <span id="homeSubtext">Detecting live location...</span>
+          <span class="live-status-pill" id="locStatusPill">LIVE</span>
+          <span class="loc-edit-hint">Change ▾</span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <a href="details.html" class="icon-btn" title="Platform Overview & Details">ℹ️</a>
+        <a href="profile.html" class="avatar-btn" id="userAvatarBtn" title="My Profile">M</a>
+      </div>
+    </header>
+
+    <!-- Live Search Box -->
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" id="globalSearchInput" placeholder="Search services, jobs, or community help nearby..." />
+      <button class="voice-btn" id="voiceSearchBtn" type="button" title="Voice Search">🎤</button>
+    </div>
+
+    <!-- Quick Search Suggestion Tags -->
+    <div class="search-suggestions">
+      <span class="suggestion-chip" data-search="Plumber">🚰 Plumber</span>
+      <span class="suggestion-chip" data-search="Electrician">⚡ Electrician</span>
+      <span class="suggestion-chip" data-search="Cleaning">🧹 Deep Cleaning</span>
+      <span class="suggestion-chip" data-search="Delivery">🛵 Delivery Rider</span>
+      <span class="suggestion-chip" data-search="Helper">💼 Helper Jobs</span>
+      <span class="suggestion-chip" data-search="Blood">🚨 Blood Donors</span>
+    </div>
+
+    <!-- Search Feedback Banner (Appears when searching) -->
+    <div id="searchFeedbackBanner" class="search-results-banner hidden">
+      <span id="searchFeedbackText">Showing search results</span>
+      <button class="link-button" id="clearSearchBtn" type="button" style="padding: 0.2rem 0.6rem; font-size: 0.8rem;">Clear ✕</button>
+    </div>
+
+    <!-- 3 Purpose Pillars -->
+    <section class="purpose-grid" id="homePurposeGrid">
+      <a href="services.html" class="purpose-card service-card">
+        <div class="purpose-top">
+          <div class="purpose-icon">🛠️</div>
+          <span class="purpose-badge">PROS NEARBY</span>
+        </div>
+        <div>
+          <h2>Need a Service</h2>
+          <p>Find trusted plumbers, cleaners, electricians, and technicians fast.</p>
+        </div>
+        <span class="purpose-arrow">→</span>
+      </a>
+
+      <a href="work.html" class="purpose-card work-card">
+        <div class="purpose-top">
+          <div class="purpose-icon">💼</div>
+          <span class="purpose-badge">GIGS & SHIFTS</span>
+        </div>
+        <div>
+          <h2>Need Work</h2>
+          <p>Discover flexible local jobs, same-day gigs, and helper shifts near you.</p>
+        </div>
+        <span class="purpose-arrow">→</span>
+      </a>
+
+      <a href="community.html" class="purpose-card community-card">
+        <div class="purpose-top">
+          <div class="purpose-icon">🤝</div>
+          <span class="purpose-badge">NEIGHBORHOOD</span>
+        </div>
+        <div>
+          <h2>Community</h2>
+          <p>Share updates, emergency help requests, and local notices with neighbors.</p>
+        </div>
+        <span class="purpose-arrow">→</span>
+      </a>
+    </section>
+
+    <!-- Today's Nearby Jobs -->
+    <section class="section-block">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">TODAY'S NEARBY JOBS</p>
+          <h2>Fresh opportunities</h2>
+        </div>
+        <a href="work.html" class="link-button">See All Jobs →</a>
+      </div>
+
+      <div class="card-grid" id="homeJobsGrid">
+        <!-- Dynamically rendered jobs -->
+      </div>
+    </section>
+
+    <!-- Floating Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="home.html" class="nav-item active" title="Home">🏠<span>Home</span></a>
+      <a href="services.html" class="nav-item" title="Services">🛠️<span>Services</span></a>
+      <a href="details.html" class="nav-item" title="Platform Details">🌐<span>Platform</span></a>
+      <button class="nav-item post-btn" id="openPostSheetBtn" type="button" title="Post">➕<span>Post</span></button>
+      <a href="work.html" class="nav-item" title="Work">💼<span>Work</span></a>
+      <a href="community.html" class="nav-item" title="Community">🤝<span>Community</span></a>
+      <a href="profile.html" class="nav-item" title="Profile">👤<span>Profile</span></a>
+    </nav>
+  </div>
+
+  <!-- Location Chooser Modal -->
+  <div class="modal-overlay" id="locationModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>📍 Select Your Location</h2>
+        <button class="icon-btn" id="closeLocationModalBtn" type="button">✕</button>
+      </div>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Choose your current locality or enable live GPS detection to find services and jobs closest to you.</p>
+
+      <button class="primary-btn" id="useGpsBtn" type="button" style="width: 100%; gap: 0.6rem;">
+        🛰️ Detect My Live GPS Location
+      </button>
+
+      <div style="display: flex; align-items: center; gap: 0.85rem; margin: 0.4rem 0;">
+        <hr style="flex: 1; border: none; border-top: 1px solid var(--surface-border);" />
+        <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">OR SELECT CITY</span>
+        <hr style="flex: 1; border: none; border-top: 1px solid var(--surface-border);" />
+      </div>
+
+      <div class="city-chips-grid">
+        <button class="city-chip" data-city="Hyderabad, Telangana">Hyderabad</button>
+        <button class="city-chip" data-city="Bengaluru, Karnataka">Bengaluru</button>
+        <button class="city-chip" data-city="Mumbai, Maharashtra">Mumbai</button>
+        <button class="city-chip" data-city="Delhi NCR">Delhi NCR</button>
+        <button class="city-chip" data-city="Chennai, Tamil Nadu">Chennai</button>
+        <button class="city-chip" data-city="Pune, Maharashtra">Pune</button>
+      </div>
+
+      <div style="display: grid; gap: 0.4rem; margin-top: 0.4rem;">
+        <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-main);">Custom Locality / Area:</label>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="text" id="customCityInput" placeholder="e.g. Banjara Hills, Hyderabad" style="flex: 1; padding: 0.65rem 0.9rem; border-radius: 12px; border: 1.5px solid var(--surface-border); font-size: 0.9rem;" />
+          <button class="secondary-btn" id="saveCustomLocBtn" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Interactive Multi-Step Create Post Modal -->
+  <div class="post-modal-overlay" id="createPostModal">
+    <div class="post-modal-card">
+      
+      <!-- STEP 1: SELECT POST TYPE -->
+      <div id="postTypeSelectView">
+        <div class="modal-step-header">
+          <h2>➕ Create a Listing</h2>
+          <button class="icon-btn" id="closePostModalBtn" type="button">✕</button>
+        </div>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0.5rem 0 1rem;">Select what you would like to post to the LocalHub community:</p>
+
+        <div class="post-type-grid">
+          <div class="post-type-card" id="selectJobTypeBtn">
+            <div class="post-type-icon" style="color: #059669; background: #ecfdf5;">💼</div>
+            <div class="post-type-info">
+              <h3>Post a Job / Need Worker</h3>
+              <p>Hire helpers, technicians, delivery riders, or shift workers</p>
+            </div>
+            <span style="font-size: 1.2rem; color: var(--text-light); margin-left: auto;">→</span>
+          </div>
+
+          <div class="post-type-card" id="selectServiceTypeBtn">
+            <div class="post-type-icon" style="color: #4f46e5; background: #eef2ff;">🛠️</div>
+            <div class="post-type-info">
+              <h3>Offer a Local Service</h3>
+              <p>List your skills, hourly or visit rates as a verified provider</p>
+            </div>
+            <span style="font-size: 1.2rem; color: var(--text-light); margin-left: auto;">→</span>
+          </div>
+
+          <div class="post-type-card" id="selectCommunityTypeBtn">
+            <div class="post-type-icon" style="color: #d97706; background: #fffbeb;">🤝</div>
+            <div class="post-type-info">
+              <h3>Community Help or Notice</h3>
+              <p>Ask for emergency blood/help, share neighborhood notices or events</p>
+            </div>
+            <span style="font-size: 1.2rem; color: var(--text-light); margin-left: auto;">→</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2A: JOB FORM -->
+      <form id="jobFormView" class="post-form hidden">
+        <div class="modal-step-header">
+          <h2>💼 Post a Job Opening</h2>
+          <button class="icon-btn close-modal-step-btn" type="button">✕</button>
+        </div>
+
+        <div class="form-group">
+          <label>Job Title / Name of Work *</label>
+          <input type="text" id="jobTitleInput" placeholder="e.g. Restaurant Assistant, Delivery Rider, Carpenter" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Salary / Pay *</label>
+            <input type="text" id="jobSalaryInput" placeholder="e.g. ₹850/day or ₹15,000/month" required />
+          </div>
+          <div class="form-group">
+            <label>Date & Timing *</label>
+            <input type="text" id="jobTimingInput" placeholder="e.g. Immediate, 10 AM - 6 PM" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Your Name *</label>
+            <input type="text" id="jobPosterNameInput" placeholder="e.g. Ramesh Kumar" required />
+          </div>
+          <div class="form-group">
+            <label>Contact Phone Number *</label>
+            <input type="tel" id="jobPhoneInput" placeholder="e.g. +91 98765 43210" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Work Location / Locality *</label>
+          <input type="text" id="jobLocationInput" placeholder="e.g. Banjara Hills, Hyderabad" required />
+        </div>
+
+        <div class="form-group">
+          <label>Job Description & Requirements</label>
+          <textarea id="jobDescInput" placeholder="Describe the work tasks, requirements, shift timings, and payout terms..."></textarea>
+        </div>
+
+        <div class="form-actions-row">
+          <button type="button" class="outline-btn back-to-type-btn">← Back</button>
+          <button type="submit" class="primary-btn" style="background: var(--work-gradient);">🚀 Publish Job Opening</button>
+        </div>
+      </form>
+
+      <!-- STEP 2B: SERVICE FORM -->
+      <form id="serviceFormView" class="post-form hidden">
+        <div class="modal-step-header">
+          <h2>🛠️ List Your Service</h2>
+          <button class="icon-btn close-modal-step-btn" type="button">✕</button>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Service Category *</label>
+            <select id="serviceCategorySelect" required>
+              <option value="Plumbing">🚰 Plumbing</option>
+              <option value="Cleaning">🧹 Cleaning</option>
+              <option value="Electrical">⚡ Electrical</option>
+              <option value="Carpentry">🪚 Carpentry</option>
+              <option value="Home Repairs">🏠 Home Repairs</option>
+              <option value="Painting">🎨 Painting</option>
+              <option value="Appliance Repair">🔌 Appliance Repair</option>
+              <option value="Pest Control">🐜 Pest Control</option>
+              <option value="Packers & Movers">📦 Packers & Movers</option>
+              <option value="Gardening">🌱 Gardening</option>
+              <option value="Other">🛠️ Other Local Service</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Pricing / Rate *</label>
+            <input type="text" id="servicePriceInput" placeholder="e.g. ₹299 Visit Fee, ₹500/hr" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Service Title / Specialty *</label>
+          <input type="text" id="serviceTitleInput" placeholder="e.g. Master Pipe Fitting & Leak Repair Specialist" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Provider / Business Name *</label>
+            <input type="text" id="serviceProviderNameInput" placeholder="e.g. Ramesh Plumbing Solutions" required />
+          </div>
+          <div class="form-group">
+            <label>Contact Phone Number *</label>
+            <input type="tel" id="servicePhoneInput" placeholder="e.g. +91 98765 43210" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Service Location / Area Covered *</label>
+          <input type="text" id="serviceLocationInput" placeholder="e.g. Hyderabad & Nearby (10 km radius)" required />
+        </div>
+
+        <div class="form-group">
+          <label>Experience & Service Details</label>
+          <textarea id="serviceDescInput" placeholder="Describe your experience, warranty, speed of response, and tools available..."></textarea>
+        </div>
+
+        <div class="form-actions-row">
+          <button type="button" class="outline-btn back-to-type-btn">← Back</button>
+          <button type="submit" class="primary-btn">🛠️ List My Service</button>
+        </div>
+      </form>
+
+      <!-- STEP 2C: COMMUNITY FORM -->
+      <form id="communityFormView" class="post-form hidden">
+        <div class="modal-step-header">
+          <h2>🤝 Post in Community</h2>
+          <button class="icon-btn close-modal-step-btn" type="button">✕</button>
+        </div>
+
+        <div class="form-group">
+          <label>Post Type / Category *</label>
+          <select id="communityCategorySelect" required>
+            <option value="Emergency Help">🚨 Emergency Help (Blood / Medical)</option>
+            <option value="Help Needed">🙋 Help Needed</option>
+            <option value="Notice">📢 Neighborhood Notice</option>
+            <option value="Event">🎉 Community Event / Gathering</option>
+            <option value="Neighborhood Alert">⚠️ Neighborhood Alert / Safety</option>
+            <option value="Lost & Found">🐾 Lost & Found</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Post Title *</label>
+          <input type="text" id="communityTitleInput" placeholder="e.g. Urgent B+ Blood Donor Needed at Apollo Hospital" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Your Name *</label>
+            <input type="text" id="communityNameInput" placeholder="e.g. Priya Sharma" required />
+          </div>
+          <div class="form-group">
+            <label>Contact Phone Number *</label>
+            <input type="tel" id="communityPhoneInput" placeholder="e.g. +91 98765 43210" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Locality / Neighborhood *</label>
+          <input type="text" id="communityLocationInput" placeholder="e.g. Jubilee Hills, Hyderabad" required />
+        </div>
+
+        <div class="form-group">
+          <label>Message / Details *</label>
+          <textarea id="communityDescInput" placeholder="Write full details about the notice, emergency help required, or event timings..." required></textarea>
+        </div>
+
+        <div class="form-actions-row">
+          <button type="button" class="outline-btn back-to-type-btn">← Back</button>
+          <button type="submit" class="primary-btn" style="background: var(--community-gradient);">🤝 Publish to Community</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+
+  <script src="script.js"></script>
+</body>
+</html>

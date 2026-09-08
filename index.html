@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocalHub Login — Everything Local. One Trusted Platform.</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="login-body">
+
+  <div class="login-page-wrapper">
+    <!-- Top Brand Header Bar -->
+    <header class="login-header">
+      <div class="brand-header">
+        <div class="brand-icon">LH</div>
+        <div class="brand-text">
+          <h1>LocalHub</h1>
+          <p>Everything Local. One Trusted Platform.</p>
+        </div>
+      </div>
+      <div class="header-trust-pill">
+        <span class="trust-shield">🛡️</span>
+        <span>100% Verified Community & Encrypted</span>
+      </div>
+    </header>
+
+    <!-- Main Centered Login Section -->
+    <main class="login-main-section">
+      <div class="login-card-container">
+        
+        <!-- Top Trust Badges Strip (Before Login) -->
+        <div class="top-trust-bar" aria-label="Key Platform Guarantees">
+          <div class="trust-chip">
+            <span class="chip-icon">🛡️</span>
+            <div>
+              <strong>Verified Users</strong>
+              <small>Real people & connections</small>
+            </div>
+          </div>
+          <div class="trust-chip">
+            <span class="chip-icon">🔒</span>
+            <div>
+              <strong>Privacy First</strong>
+              <small>Protected & secure</small>
+            </div>
+          </div>
+          <div class="trust-chip">
+            <span class="chip-icon">📍</span>
+            <div>
+              <strong>Location-Based</strong>
+              <small>Near your neighborhood</small>
+            </div>
+          </div>
+          <div class="trust-chip">
+            <span class="chip-icon">💬</span>
+            <div>
+              <strong>24×7 Support</strong>
+              <small>Always here to help</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Login Form Content Card -->
+        <div class="content-card login-card">
+          <div class="top-line">
+            <h2 id="authHeading">Welcome Back! 👋</h2>
+            <p id="authSectionDescription">Sign in to explore services, work opportunities, and your local community.</p>
+          </div>
+
+          <div class="tab-row">
+            <button class="tab active" data-tab="login" type="button">Login</button>
+            <button class="tab" data-tab="create" type="button">Create Account</button>
+          </div>
+
+          <form class="auth-form" id="authForm">
+            <!-- Full Name (Only for Create Account) -->
+            <div id="authExtraFields" class="auth-extra hidden">
+              <div class="input-group">
+                <label for="fullName">Full Name</label>
+                <input id="fullName" type="text" placeholder="Enter your full name" autocomplete="name" />
+              </div>
+            </div>
+
+            <!-- Email Address -->
+            <div class="input-group">
+              <label for="email">Email Address</label>
+              <input id="email" type="email" placeholder="Enter your email address" required autocomplete="email" />
+            </div>
+
+            <!-- Password Field -->
+            <div class="input-group">
+              <div class="label-with-hint">
+                <label for="password" id="passwordLabel">Password</label>
+                <span class="input-hint" id="passwordHint">(6 digits)</span>
+              </div>
+              <div class="password-input-wrap">
+                <input id="password" type="password" placeholder="Enter 6-digit password" maxlength="20" required autocomplete="current-password" />
+                <button type="button" class="toggle-password-btn" id="togglePasswordBtn" aria-label="Toggle password visibility">👁️</button>
+              </div>
+            </div>
+
+            <!-- Confirm Password (Only for Create Account) -->
+            <div id="confirmPasswordGroup" class="input-group hidden">
+              <label for="confirmPassword">Confirm Password</label>
+              <div class="password-input-wrap">
+                <input id="confirmPassword" type="password" placeholder="Re-enter 6-digit password" maxlength="20" autocomplete="new-password" />
+                <button type="button" class="toggle-password-btn" id="toggleConfirmPasswordBtn" aria-label="Toggle confirm password visibility">👁️</button>
+              </div>
+            </div>
+
+            <!-- Human Verification Card (Spacious, Clear, Accessible) -->
+            <div class="verification-card" id="humanVerifyCard">
+              <div class="verification-heading">
+                <span class="lock-emoji">🔒</span> Human verification
+              </div>
+              <label class="checkbox-label" for="verification">
+                <input type="checkbox" id="verification" />
+                <span class="robot-label">🤖 I'm not a robot</span>
+                <span class="recaptcha-tag">Protected</span>
+              </label>
+            </div>
+
+            <!-- Primary Action Button -->
+            <button type="submit" class="primary-btn" id="submitAuthBtn">Login to LocalHub</button>
+
+            <div class="login-note">
+              <span>🔐</span>
+              <p id="authNoteText">Fast, secure login with encrypted password protection.</p>
+            </div>
+
+            <div class="divider"><span>or continue with</span></div>
+
+            <!-- Social Buttons -->
+            <div class="social-buttons">
+              <button type="button" class="social-btn google" id="googleLoginBtn">
+                <span class="social-icon">🌐</span>
+                <span class="social-label">Continue with Google</span>
+              </button>
+              <button type="button" class="social-btn apple" id="appleLoginBtn">
+                <span class="social-icon">🍏</span>
+                <span class="social-label">Continue with Apple</span>
+              </button>
+              <button type="button" class="social-btn whatsapp" id="whatsappLoginBtn">
+                <span class="social-icon">💬</span>
+                <span class="social-label">Continue with WhatsApp</span>
+              </button>
+            </div>
+
+            <!-- Animated Trust Rotator Box (Below Continue) -->
+            <div class="trust-slider-card" id="trustSliderCard">
+              <div class="slider-top">
+                <span class="slider-badge">WHY TRUST LOCALHUB</span>
+                <div class="slider-indicators" id="sliderDots">
+                  <button type="button" class="indicator-dot active" data-index="0" aria-label="Slide 1"></button>
+                  <button type="button" class="indicator-dot" data-index="1" aria-label="Slide 2"></button>
+                  <button type="button" class="indicator-dot" data-index="2" aria-label="Slide 3"></button>
+                  <button type="button" class="indicator-dot" data-index="3" aria-label="Slide 4"></button>
+                </div>
+              </div>
+              <div class="slider-track" id="sliderTrack">
+                <div class="trust-slide active" data-index="0">
+                  <div class="slide-icon-box">🛡️</div>
+                  <div class="slide-text">
+                    <strong>Verified Users</strong>
+                    <p>Real people. Trusted connections.</p>
+                  </div>
+                </div>
+                <div class="trust-slide" data-index="1">
+                  <div class="slide-icon-box">🔒</div>
+                  <div class="slide-text">
+                    <strong>Privacy First</strong>
+                    <p>Your data is protected and secure.</p>
+                  </div>
+                </div>
+                <div class="trust-slide" data-index="2">
+                  <div class="slide-icon-box">📍</div>
+                  <div class="slide-text">
+                    <strong>Location-Based</strong>
+                    <p>Discover services and opportunities near you.</p>
+                  </div>
+                </div>
+                <div class="trust-slide" data-index="3">
+                  <div class="slide-icon-box">💬</div>
+                  <div class="slide-text">
+                    <strong>24×7 Support</strong>
+                    <p>We're here whenever you need help.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="footer-text">By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+          </form>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

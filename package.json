@@ -1,0 +1,16 @@
+{
+  "name": "localhub-backend",
+  "version": "1.0.0",
+  "description": "Backend API for LocalHub static frontend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^2.3.0",
+    "dotenv": "^17.4.2",
+    "express": "^4.22.2",
+    "google-translate-api-x": "^10.7.3",
+    "mongoose": "^9.9.5"
+  }
+}
