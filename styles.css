@@ -1,5 +1,5 @@
 /* ========================================================
-   LOCALHUB DESIGN SYSTEM & MODERN UI STYLES
+  KARYAMITRA DESIGN SYSTEM & MODERN UI STYLES
    ======================================================== */
 
 :root {
@@ -128,6 +128,22 @@ button {
 
 .hidden {
   display: none !important;
+}
+
+.brand-logo {
+  width: 320px;
+  height: 320px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.splash-logo {
+  width: min(100%, 420px);
+  height: auto;
+  display: block;
+  margin: 0 auto 1rem;
 }
 
 /* ========================================================
@@ -1508,10 +1524,11 @@ button {
 
 .login-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 2rem;
-  max-width: 1200px;
+  gap: 0.9rem;
+  padding: 1.1rem 1rem 0.5rem;
+  max-width: 480px;
   width: 100%;
   margin: 0 auto;
 }
@@ -1519,7 +1536,11 @@ button {
 .brand-header {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  justify-content: center;
+  padding: 0.45rem;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(4, 15, 40, 0.22);
 }
 
 .brand-icon {
@@ -1536,7 +1557,7 @@ button {
 }
 
 .brand-text h1 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: #ffffff;
   line-height: 1.1;
@@ -1553,7 +1574,7 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 1rem 3.5rem;
+  padding: 0.7rem 1rem 3.5rem;
   width: 100%;
 }
 
@@ -1570,6 +1591,24 @@ button {
   grid-template-columns: repeat(2, 1fr);
   gap: 0.65rem;
   width: 100%;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 28px;
+  background: rgba(9, 18, 42, 0.38);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03), 0 16px 32px rgba(0, 0, 0, 0.12);
+}
+
+.header-trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .trust-chip {
@@ -1773,6 +1812,72 @@ button {
 .verification-card #captchaInput:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+}
+
+.otp-verification-status {
+  margin: 0.65rem 0 0;
+  color: #047857;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.account-summary {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.account-summary-status {
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  border-radius: 10px;
+  background: #ecfdf5;
+  color: #047857;
+  font-weight: 800;
+}
+
+.account-summary-contact {
+  display: grid;
+  grid-template-columns: minmax(5rem, auto) 1fr;
+  gap: 0.45rem 0.8rem;
+  align-items: center;
+}
+
+.account-summary-contact span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.account-summary-contact strong {
+  overflow-wrap: anywhere;
+}
+
+.account-summary h3 {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+}
+
+.account-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.auth-status {
+  display: none;
+  margin: 0.7rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  background: #fff1f2;
+  color: #9f1239;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.auth-status.visible {
+  display: block;
 }
 
 .trust-slider-card {
@@ -2128,6 +2233,10 @@ button {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.85rem;
+  }
+  .brand-logo {
+    width: min(78vw, 320px);
+    height: auto;
   }
   .top-trust-bar {
     grid-template-columns: 1fr;

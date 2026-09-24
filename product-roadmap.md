@@ -1,4 +1,4 @@
-# LocalHub Product Roadmap
+# KaryaMitra Product Roadmap
 
 ## Running The Dynamic Backend
 The Express server serves the frontend and API from `E:\website`.
@@ -6,7 +6,7 @@ The Express server serves the frontend and API from `E:\website`.
 ```powershell
 Set-Location E:\website
 $env:MONGODB_URI = 'mongodb://127.0.0.1:27017'
-$env:MONGODB_DB = 'localhub'
+$env:MONGODB_DB = 'karyamitra'
 npm start
 ```
 

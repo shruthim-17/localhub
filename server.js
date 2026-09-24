@@ -36,7 +36,7 @@ app.get('/api/translate', async (req, res) => {
 });
 
 function hashPassword(password) {
-  return crypto.createHash('sha256').update('localhub_salt_' + password).digest('hex');
+  return crypto.createHash('sha256').update('karyamitra_salt_' + password).digest('hex');
 }
 
 // In-Memory Fallback Stores
@@ -313,20 +313,22 @@ let posts = [
   }
 ];
 
-const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/localhub';
+const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/karyamitra';
 const useMongo = process.env.USE_IN_MEMORY !== 'true';
 let mongoReady = false;
 const otpStore = new Map();
 const feedbackStore = [];
 const supportRequests = [];
-const loginChallenges = new Map();
+const captchaSecret = process.env.CAPTCHA_SECRET || 'karyamitra-captcha-secret';
 
 function createLoginChallenge() {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
   for (let index = 0; index < 6; index += 1) code += alphabet[crypto.randomInt(alphabet.length)];
-  const challengeId = crypto.randomUUID();
-  loginChallenges.set(challengeId, { code, expiresAt: Date.now() + 5 * 60 * 1000 });
+  const expiresAt = Date.now() + 5 * 60 * 1000;
+  const payload = Buffer.from(JSON.stringify({ code, expiresAt })).toString('base64url');
+  const signature = crypto.createHmac('sha256', captchaSecret).update(payload).digest('base64url');
+  const challengeId = payload + '.' + signature;
   return { challengeId, code };
 }
 
@@ -391,17 +393,17 @@ const postSchema = new mongoose.Schema({
   location: String,
 }, { timestamps: true });
 
-const User = mongoose.models.LocalHubUser || mongoose.model('LocalHubUser', userSchema);
-const Job = mongoose.models.LocalHubJob || mongoose.model('LocalHubJob', jobSchema);
-const Service = mongoose.models.LocalHubService || mongoose.model('LocalHubService', serviceSchema);
-const Post = mongoose.models.LocalHubPost || mongoose.model('LocalHubPost', postSchema);
+const User = mongoose.models.KaryaMitraUser || mongoose.model('KaryaMitraUser', userSchema);
+const Job = mongoose.models.KaryaMitraJob || mongoose.model('KaryaMitraJob', jobSchema);
+const Service = mongoose.models.KaryaMitraService || mongoose.model('KaryaMitraService', serviceSchema);
+const Post = mongoose.models.KaryaMitraPost || mongoose.model('KaryaMitraPost', postSchema);
 
 async function connectDatabase() {
   if (!useMongo) return;
   try {
-    await mongoose.connect(mongoUri, { dbName: process.env.MONGODB_DB || 'localhub' });
+    await mongoose.connect(mongoUri, { dbName: process.env.MONGODB_DB || 'karyamitra' });
     mongoReady = true;
-    console.log('MongoDB connected to localhub.');
+    console.log('MongoDB connected to karyamitra.');
   } catch (error) {
     console.log('MongoDB connection fallback; using in-memory store.');
   }
@@ -409,6 +411,10 @@ async function connectDatabase() {
 
 async function seedDatabase() {
   if (!mongoReady) return;
+  const seedUser = users[0];
+  if (seedUser) {
+    await User.updateOne({ email: seedUser.email }, { $setOnInsert: seedUser }, { upsert: true });
+  }
   if (await Service.countDocuments() === 0) await Service.insertMany(services);
   if (await Job.countDocuments() === 0) await Job.insertMany(jobs);
   if (await Post.countDocuments() === 0) await Post.insertMany(posts);
@@ -433,9 +439,25 @@ app.get('/api/login-challenge', (req, res) => {
 });
 
 function consumeLoginChallenge(challengeId, challengeAnswer) {
-  const challenge = loginChallenges.get(String(challengeId || ''));
-  loginChallenges.delete(String(challengeId || ''));
-  return Boolean(challenge && challenge.expiresAt >= Date.now() && String(challengeAnswer || '').trim().toUpperCase() === challenge.code);
+  const parts = String(challengeId || '').split('.');
+  if (parts.length !== 2) return false;
+
+  const [payload, signature] = parts;
+  const expectedSignature = crypto.createHmac('sha256', captchaSecret).update(payload).digest('base64url');
+  const receivedSignature = Buffer.from(signature);
+  const expectedSignatureBuffer = Buffer.from(expectedSignature);
+  if (receivedSignature.length !== expectedSignatureBuffer.length || !crypto.timingSafeEqual(receivedSignature, expectedSignatureBuffer)) {
+    return false;
+  }
+
+  let challenge;
+  try {
+    challenge = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+  } catch (error) {
+    return false;
+  }
+
+  return challenge.expiresAt >= Date.now() && String(challengeAnswer || '').trim().toUpperCase() === challenge.code;
 }
 
 // Authentication
@@ -552,6 +574,9 @@ app.post('/api/user/phone/request-otp', async (req, res) => {
   if (!email || !phone) return res.status(400).json({ success: false, error: 'Email and phone number are required.' });
   const user = mongoReady ? await User.findOne({ email }).lean() : users.find(item => item.email === email);
   if (!user) return res.status(404).json({ success: false, error: 'Profile not found.' });
+  if (user.phoneVerified) {
+    return res.json({ success: true, alreadyVerified: true, message: 'This phone number is already verified.', user: publicUser(user) });
+  }
 
   const otp = String(crypto.randomInt(100000, 1000000));
   otpStore.set(email, { otp, phone, expiresAt: Date.now() + 10 * 60 * 1000 });
@@ -560,7 +585,7 @@ app.post('/api/user/phone/request-otp', async (req, res) => {
     try {
       const response = await fetch(providerUrl, {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (process.env.OTP_API_KEY || '') },
-        body: JSON.stringify({ phone, message: 'Your LocalHub verification code is ' + otp })
+        body: JSON.stringify({ phone, message: 'Your KaryaMitra verification code is ' + otp })
       });
       if (!response.ok) throw new Error('OTP provider rejected the request.');
     } catch (error) {
@@ -610,7 +635,7 @@ app.post('/api/feedback', async (req, res) => {
 app.post('/api/help', (req, res) => {
   const question = String(req.body.question || '').trim().toLowerCase();
   if (!question) return res.status(400).json({ success: false, error: 'A question is required.' });
-  let answer = 'I can help with LocalHub navigation, language, voice, profiles, posts, phone verification, ratings, and support.';
+  let answer = 'I can help with KaryaMitra navigation, language, voice, profiles, posts, phone verification, ratings, and support.';
   if (/phone|otp|verify/.test(question)) answer = 'Open your profile, enter your phone number, choose Send OTP, then enter the six-digit code to verify your phone.';
   else if (/language|telugu|hindi|kannada|urdu|voice|speak|microphone/.test(question)) answer = 'Open your profile and choose Assistant language. The app text, voice commands, and spoken action announcements will use that language when a matching browser voice is installed.';
   else if (/post|job|service|community/.test(question)) answer = 'Use the Post button to choose a job, service, or community post. Your saved counts and activity history update automatically.';
@@ -622,7 +647,7 @@ app.post('/api/help', (req, res) => {
 app.post('/api/support/request', (req, res) => {
   const issue = String(req.body.issue || '').trim();
   if (!issue) return res.status(400).json({ success: false, error: 'Please describe the issue.' });
-  const request = { id: Date.now(), name: String(req.body.name || 'LocalHub member'), email: String(req.body.email || ''), language: String(req.body.language || 'en-US'), issue, status: 'open', createdAt: new Date().toISOString() };
+  const request = { id: Date.now(), name: String(req.body.name || 'KaryaMitra member'), email: String(req.body.email || ''), language: String(req.body.language || 'en-US'), issue, status: 'open', createdAt: new Date().toISOString() };
   supportRequests.push(request);
   console.log('Human support request received:', request.id, request.email || request.name);
   res.json({ success: true, requestId: request.id, message: 'Human support request sent.' });
@@ -915,6 +940,6 @@ app.post('/api/post', async (req, res) => {
 
 connectDatabase().then(seedDatabase).then(() => {
   app.listen(PORT, () => {
-    console.log('LocalHub backend running at http://localhost:' + PORT);
+    console.log('KaryaMitra backend running at http://localhost:' + PORT);
   });
 });

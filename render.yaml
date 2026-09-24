@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: localhub
+    name: karyamitra
     runtime: node
     plan: free
     buildCommand: npm install
@@ -12,7 +12,7 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: MONGODB_DB
-        value: localhub
+        value: karyamitra
       - key: OTP_API_URL
         sync: false
       - key: OTP_API_KEY

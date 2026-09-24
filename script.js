@@ -1,5 +1,5 @@
 // ========================================================
-// LOCALHUB COMPLETE DYNAMIC & INTERACTIVE CLIENT ENGINE
+// KARYAMITRA COMPLETE DYNAMIC & INTERACTIVE CLIENT ENGINE
 // ========================================================
 
 const API_BASE = '/api';
@@ -9,10 +9,10 @@ let translationObserver = null;
 let translationTimer = null;
 let translationInProgress = false;
 let translationPending = false;
-let translationBlockedUntil = Number(localStorage.getItem('localhubTranslationBlockedUntil') || 0);
+let translationBlockedUntil = Number(localStorage.getItem('karyamitraTranslationBlockedUntil') || 0);
 
 function getAppLanguage() {
-  return sessionStorage.getItem('localhubLanguage') || 'en-US';
+  return sessionStorage.getItem('karyamitraLanguage') || 'en-US';
 }
 
 function getTranslationLanguage(language = getAppLanguage()) {
@@ -55,7 +55,8 @@ const voiceResponseTranslations = {
     'I did not understand. Please say that again.': 'నాకు అర్థం కాలేదు. దయచేసి మళ్లీ చెప్పండి.',
     'Voice recognition failed. Please check microphone access and try again.': 'వాయిస్ గుర్తింపు విఫలమైంది. మైక్రోఫోన్ అనుమతిని తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.',
     'Voice responses are now on.': 'వాయిస్ స్పందనలు ఇప్పుడు ఆన్‌లో ఉన్నాయి.',
-    'Voice responses are now off.': 'వాయిస్ స్పందనలు ఇప్పుడు ఆఫ్‌లో ఉన్నాయి.'
+    'Voice responses are now off.': 'వాయిస్ స్పందనలు ఇప్పుడు ఆఫ్‌లో ఉన్నాయి.',
+    'A Telugu speech voice is not installed in this browser.': 'ఈ బ్రౌజర్‌లో తెలుగు వాయిస్ ఇన్‌స్టాల్ కాలేదు. Windows సెట్టింగ్స్‌లో తెలుగు స్పీచ్ వాయిస్‌ను ఇన్‌స్టాల్ చేసి మళ్లీ ప్రయత్నించండి.'
   },
   hi: {
     'Opening the platform.': 'प्लेटफ़ॉर्म खोल रहा हूँ।',
@@ -236,7 +237,7 @@ function setupLanguageSupport() {
   if (select) {
     select.value = getAppLanguage();
     select.addEventListener('change', () => {
-      sessionStorage.setItem('localhubLanguage', select.value);
+      sessionStorage.setItem('karyamitraLanguage', select.value);
       document.documentElement.lang = select.value;
       const status = document.getElementById('languageStatus');
       if (status) status.textContent = 'Language updated. Reloading the app...';
@@ -253,7 +254,7 @@ function setupLanguageSupport() {
 
 // Current session helper
 function getCurrentUser() {
-  const stored = localStorage.getItem('localhubUser');
+  const stored = localStorage.getItem('karyamitraUser');
   if (stored) {
     try { return JSON.parse(stored); } catch (e) { }
   }
@@ -261,7 +262,7 @@ function getCurrentUser() {
 }
 
 function getSelectedCity() {
-  const location = localStorage.getItem('localhubLocation') || '';
+  const location = localStorage.getItem('karyamitraLocation') || '';
   const parts = location.split(',').map(part => part.trim()).filter(Boolean);
   return parts.length > 1 ? parts[parts.length - 1] : (parts[0] || 'Hyderabad');
 }
@@ -394,18 +395,40 @@ function initAuthPage() {
   const captchaInput = document.getElementById('captchaInput');
   const captchaChallengeId = document.getElementById('captchaChallengeId');
   const refreshCaptchaBtn = document.getElementById('refreshCaptchaBtn');
+  const authStatus = document.getElementById('authStatus');
+
+  function showAuthStatus(message) {
+    if (!authStatus) return;
+    authStatus.textContent = 'KaryaMitra: ' + message;
+    authStatus.classList.add('visible');
+  }
+
+  function clearAuthStatus() {
+    if (!authStatus) return;
+    authStatus.textContent = '';
+    authStatus.classList.remove('visible');
+  }
 
   async function loadCaptchaChallenge() {
-    const data = await fetchJson('/login-challenge');
-    if (!data || !data.success) {
-      if (captchaCode) captchaCode.textContent = '------';
-      return;
-    }
-    if (captchaCode) captchaCode.textContent = data.code;
-    if (captchaChallengeId) captchaChallengeId.value = data.challengeId;
-    if (captchaInput) {
-      captchaInput.value = '';
-      captchaInput.focus();
+    if (refreshCaptchaBtn) refreshCaptchaBtn.disabled = true;
+    try {
+      const data = await fetchJson('/login-challenge');
+      if (!data || !data.success) {
+        if (captchaCode) captchaCode.textContent = 'RETRY';
+        if (captchaChallengeId) captchaChallengeId.value = '';
+        if (captchaInput) captchaInput.value = '';
+        showAuthStatus('The server is offline. Please start KaryaMitra and try again.');
+        return;
+      }
+      clearAuthStatus();
+      if (captchaCode) captchaCode.textContent = data.code;
+      if (captchaChallengeId) captchaChallengeId.value = data.challengeId;
+      if (captchaInput) {
+        captchaInput.value = '';
+        captchaInput.focus();
+      }
+    } finally {
+      if (refreshCaptchaBtn) refreshCaptchaBtn.disabled = false;
     }
   }
 
@@ -425,10 +448,10 @@ function initAuthPage() {
         if (authDesc) authDesc.textContent = 'Sign in to explore services, work opportunities, and your local community.';
         if (authExtraFields) authExtraFields.classList.add('hidden');
         if (confirmPasswordGroup) confirmPasswordGroup.classList.add('hidden');
-        if (submitBtn) submitBtn.textContent = 'Login to LocalHub';
+        if (submitBtn) submitBtn.textContent = 'Login to KaryaMitra';
       } else {
         if (authHeading) authHeading.textContent = 'Create Account ✨';
-        if (authDesc) authDesc.textContent = 'Join LocalHub to find verified services, flexible jobs, and neighborhood help.';
+        if (authDesc) authDesc.textContent = 'Join KaryaMitra to find verified services, flexible jobs, and neighborhood help.';
         if (authExtraFields) authExtraFields.classList.remove('hidden');
         if (confirmPasswordGroup) confirmPasswordGroup.classList.remove('hidden');
         if (submitBtn) submitBtn.textContent = 'Create My Account';
@@ -464,10 +487,11 @@ function initAuthPage() {
   if (authForm) {
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      clearAuthStatus();
 
       const challengeAnswer = captchaInput ? captchaInput.value.trim().toUpperCase() : '';
       if (!captchaChallengeId?.value || !challengeAnswer) {
-        alert('Please enter the security code shown above.');
+        showAuthStatus('Please enter the security code shown above.');
         return;
       }
 
@@ -475,7 +499,7 @@ function initAuthPage() {
       const password = passInput.value.trim();
 
       if (password.length < 6) {
-        alert('Password must be at least 6 digits/characters.');
+        showAuthStatus('Password must be at least 6 digits/characters.');
         return;
       }
 
@@ -484,12 +508,12 @@ function initAuthPage() {
         const confirmPass = confirmPassInput ? confirmPassInput.value.trim() : '';
 
         if (!fullName) {
-          alert('Please enter your full name.');
+          showAuthStatus('Please enter your full name.');
           return;
         }
 
         if (password !== confirmPass) {
-          alert('Passwords do not match. Please re-enter.');
+          showAuthStatus('Passwords do not match. Please re-enter.');
           return;
         }
 
@@ -505,7 +529,7 @@ function initAuthPage() {
         submitBtn.textContent = 'Create My Account';
 
         if (res && res.success) {
-          localStorage.setItem('localhubUser', JSON.stringify({
+          localStorage.setItem('karyamitraUser', JSON.stringify({
             name: fullName,
             email: email,
             phone: '',
@@ -513,8 +537,15 @@ function initAuthPage() {
           }));
           window.location.href = 'details.html';
         } else {
-          alert((res && res.error) || 'Registration failed. Please try again.');
-          loadCaptchaChallenge();
+          const errorMessage = (res && res.error) || 'Registration failed. Please try again.';
+          if (/security code|captcha|challenge/i.test(errorMessage)) {
+            await loadCaptchaChallenge();
+            showAuthStatus('That security code expired. A new code is ready; please enter it and try again.');
+          } else if (!res) {
+            showAuthStatus('The server is offline. Please start KaryaMitra and try again.');
+          } else {
+            showAuthStatus(errorMessage);
+          }
         }
       } else {
         submitBtn.disabled = true;
@@ -526,10 +557,10 @@ function initAuthPage() {
         });
 
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Login to LocalHub';
+        submitBtn.textContent = 'Login to KaryaMitra';
 
         if (res && res.success) {
-          localStorage.setItem('localhubUser', JSON.stringify({
+          localStorage.setItem('karyamitraUser', JSON.stringify({
             name: (res.user && res.user.name) || '',
             email: (res.user && res.user.email) || email,
             phone: (res.user && res.user.phone) || '',
@@ -537,8 +568,15 @@ function initAuthPage() {
           }));
           window.location.href = 'details.html';
         } else {
-          alert((res && res.error) || 'Login failed. Please check your details and try again.');
-          loadCaptchaChallenge();
+          const errorMessage = (res && res.error) || 'Login failed. Please check your details and try again.';
+          if (/security code|captcha|challenge/i.test(errorMessage)) {
+            await loadCaptchaChallenge();
+            showAuthStatus('That security code expired. A new code is ready; please enter it and try again.');
+          } else if (!res) {
+            showAuthStatus('The server is offline. Please start KaryaMitra and try again.');
+          } else {
+            showAuthStatus(errorMessage);
+          }
         }
       }
     });
@@ -585,9 +623,9 @@ function setupLocationManager() {
   const subtext = document.getElementById('homeSubtext');
   const statusPill = document.getElementById('locStatusPill');
 
-  const savedLoc = localStorage.getItem('localhubLocation') || 'Hyderabad, Telangana';
+  const savedLoc = localStorage.getItem('karyamitraLocation') || 'Hyderabad, Telangana';
   if (subtext) subtext.textContent = savedLoc;
-  if (statusPill) statusPill.textContent = localStorage.getItem('localhubLocType') || 'LIVE';
+  if (statusPill) statusPill.textContent = localStorage.getItem('karyamitraLocType') || 'LIVE';
 
   if (!openModalBtn || !modal) return;
 
@@ -662,8 +700,8 @@ function setupLocationManager() {
   }
 
   function setLocation(loc, type) {
-    localStorage.setItem('localhubLocation', loc);
-    localStorage.setItem('localhubLocType', type);
+    localStorage.setItem('karyamitraLocation', loc);
+    localStorage.setItem('karyamitraLocType', type);
     if (subtext) subtext.textContent = loc;
     if (statusPill) statusPill.textContent = type;
     
@@ -676,7 +714,7 @@ function setupLocationManager() {
         method: 'PATCH',
         body: JSON.stringify({ email: user.email, location: loc })
       }).then(res => {
-        if (res && res.success) localStorage.setItem('localhubUser', JSON.stringify(res.user));
+        if (res && res.success) localStorage.setItem('karyamitraUser', JSON.stringify(res.user));
       });
     }
     if (document.getElementById('homeJobsGrid') || document.getElementById('servicesListGrid') || document.getElementById('workJobsGrid') || document.getElementById('communityFeedList')) {
@@ -816,31 +854,38 @@ function waitForSpeechVoices() {
   if (voices.length) return Promise.resolve(voices);
   return new Promise(resolve => {
     let settled = false;
-    const finish = () => {
+    const finishWithVoices = () => {
       if (settled) return;
       settled = true;
-      window.speechSynthesis.removeEventListener('voiceschanged', finish);
+      window.speechSynthesis.removeEventListener('voiceschanged', finishWithVoices);
       resolve(window.speechSynthesis.getVoices());
     };
-    window.speechSynthesis.addEventListener('voiceschanged', finish);
-    setTimeout(finish, 1200);
+    window.speechSynthesis.addEventListener('voiceschanged', finishWithVoices);
+    setTimeout(finishWithVoices, 2500);
   });
+}
+
+function normalizeVoiceLanguage(language) {
+  return String(language || '').toLowerCase().replace('_', '-');
+}
+
+function voiceMatchesLanguage(voice, language, languagePrefix) {
+  const voiceLanguage = normalizeVoiceLanguage(voice.lang);
+  return voiceLanguage === normalizeVoiceLanguage(language) || voiceLanguage.startsWith(languagePrefix + '-');
 }
 
 function getFemaleVoice(voices, language, languagePrefix) {
   const femaleName = /female|samantha|ava|victoria|karen|susan|zira|hazel|google uk english|microsoft.*female/i;
-  return voices.find(voice => voice.lang.toLowerCase() === language.toLowerCase() && femaleName.test(voice.name))
-    || voices.find(voice => voice.lang.toLowerCase().startsWith(languagePrefix) && femaleName.test(voice.name))
-    || voices.find(voice => voice.lang.toLowerCase() === language.toLowerCase())
-    || voices.find(voice => voice.lang.toLowerCase().startsWith(languagePrefix));
+  return voices.find(voice => voiceMatchesLanguage(voice, language, languagePrefix) && femaleName.test(voice.name))
+    || voices.find(voice => voiceMatchesLanguage(voice, language, languagePrefix));
 }
 
 function hasLanguageVoice(voices, language, languagePrefix) {
-  return voices.some(voice => voice.lang.toLowerCase() === language.toLowerCase() || voice.lang.toLowerCase().startsWith(languagePrefix));
+  return voices.some(voice => voiceMatchesLanguage(voice, language, languagePrefix));
 }
 
 async function speakVoiceAssistant(message, translatedMessage = '') {
-  if (localStorage.getItem('localhubVoiceResponses') === 'off' || !('speechSynthesis' in window)) return;
+  if (localStorage.getItem('karyamitraVoiceResponses') === 'off' || !('speechSynthesis' in window)) return;
   const spokenMessage = translatedMessage || getLocalizedVoiceMessage(message);
   const language = getAppLanguage();
   const languagePrefix = getTranslationLanguage(language);
@@ -850,6 +895,12 @@ async function speakVoiceAssistant(message, translatedMessage = '') {
     const utterance = new SpeechSynthesisUtterance(spokenMessage);
     utterance.lang = language;
     const femaleVoice = getFemaleVoice(voices, language, languagePrefix);
+    if (languagePrefix === 'te' && !femaleVoice) {
+      const missingVoiceMessage = getLocalizedVoiceMessage('A Telugu speech voice is not installed in this browser.');
+      updateVoiceAssistantStatus(missingVoiceMessage);
+      resolve();
+      return;
+    }
     if (femaleVoice) utterance.voice = femaleVoice;
     if (!hasLanguageVoice(voices, language, languagePrefix)) {
       utterance.lang = language;
@@ -1274,7 +1325,7 @@ function createServiceProviderCard(serv) {
     const deleteBtn = card.querySelector('.delete-profile-btn');
     if (deleteBtn) {
       deleteBtn.addEventListener('click', async () => {
-        if (confirm('Are you sure you want to remove your "' + serv.title + '" work profile from LocalHub?')) {
+        if (confirm('Are you sure you want to remove your "' + serv.title + '" work profile from KaryaMitra?')) {
           const res = await fetchJson('/services/' + serv.id, { method: 'DELETE' });
           if (res && res.success) {
             announceVoiceAction('Your service work profile has been removed.');
@@ -1663,10 +1714,10 @@ function setupHelpSupport() {
   if (askButton) askButton.addEventListener('click', () => {
     showCustomModal('❔ Help assistant', `
       <div class="help-dialog">
-        <p class="tool-copy">Ask about login, phone verification, posting, ratings, language, voice, or any LocalHub feature.</p>
+        <p class="tool-copy">Ask about login, phone verification, posting, ratings, language, voice, or any KaryaMitra feature.</p>
         <label for="helpQuestionInput">Your question</label>
         <textarea id="helpQuestionInput" placeholder="How do I verify my phone?"></textarea>
-        <button class="primary-btn" id="submitHelpQuestionBtn" type="button">Ask LocalHub</button>
+        <button class="primary-btn" id="submitHelpQuestionBtn" type="button">Ask KaryaMitra</button>
         <div class="help-answer hidden" id="helpAnswer" aria-live="polite"></div>
       </div>
     `);
@@ -1743,10 +1794,11 @@ function initProfilePage() {
   const otpControls = document.getElementById('phoneOtpControls');
   const otpInput = document.getElementById('phoneOtpInput');
   const verifyOtpBtn = document.getElementById('verifyPhoneOtpBtn');
+  const otpVerificationStatus = document.getElementById('otpVerificationStatus');
   const voiceResponseToggle = document.getElementById('voiceResponseToggle');
 
   function updateVoiceResponseToggle() {
-    const enabled = localStorage.getItem('localhubVoiceResponses') !== 'off';
+    const enabled = localStorage.getItem('karyamitraVoiceResponses') !== 'off';
     if (!voiceResponseToggle) return;
     voiceResponseToggle.textContent = enabled ? 'Voice: On' : 'Voice: Off';
     voiceResponseToggle.setAttribute('aria-pressed', String(enabled));
@@ -1755,10 +1807,10 @@ function initProfilePage() {
   updateVoiceResponseToggle();
   if (voiceResponseToggle) {
     voiceResponseToggle.addEventListener('click', () => {
-      const enabled = localStorage.getItem('localhubVoiceResponses') !== 'off';
+      const enabled = localStorage.getItem('karyamitraVoiceResponses') !== 'off';
       const message = enabled ? 'Voice responses are now off.' : 'Voice responses are now on.';
       if (enabled) speakVoiceAssistant(message);
-      localStorage.setItem('localhubVoiceResponses', enabled ? 'off' : 'on');
+      localStorage.setItem('karyamitraVoiceResponses', enabled ? 'off' : 'on');
       updateVoiceResponseToggle();
       if (!enabled) speakVoiceAssistant(message);
     });
@@ -1781,7 +1833,7 @@ function initProfilePage() {
   if (user.email) {
     fetchJson('/user/profile?email=' + encodeURIComponent(user.email)).then(data => {
       if (!data || !data.success) return;
-      localStorage.setItem('localhubUser', JSON.stringify(data.user));
+          localStorage.setItem('karyamitraUser', JSON.stringify(data.user));
       applyProfileVerification(data.user);
       if (phoneEl) phoneEl.textContent = data.user.phone || 'Not provided';
     });
@@ -1800,6 +1852,8 @@ function initProfilePage() {
     if (statusSummaryEl) statusSummaryEl.textContent = formatLastSeen(profile.lastLoginAt);
     if (lastSeenEl) lastSeenEl.textContent = formatLastSeen(profile.lastLoginAt);
     if (phoneVerificationEl) phoneVerificationEl.textContent = phoneIsVerified ? '✔ Phone verified' : 'Phone not verified';
+    if (otpVerificationStatus) otpVerificationStatus.textContent = phoneIsVerified ? '✔ OTP verified. This phone number will not require verification again.' : '';
+    if (requestOtpBtn) requestOtpBtn.disabled = phoneIsVerified;
     if (trustScoreEl) trustScoreEl.textContent = typeof profile.trustScore === 'number'
       ? '⭐ ' + profile.trustScore.toFixed(1) + ' / 5.0 (' + (profile.ratingCount || 0) + ' ratings)'
       : 'Not available yet';
@@ -1816,6 +1870,14 @@ function initProfilePage() {
     });
     requestOtpBtn.disabled = false;
     if (data && data.success) {
+      if (data.user) {
+        localStorage.setItem('karyamitraUser', JSON.stringify(data.user));
+        applyProfileVerification(data.user);
+      }
+      if (data.alreadyVerified) {
+        if (otpControls) otpControls.classList.add('hidden');
+        return;
+      }
       otpControls.classList.remove('hidden');
       alert(data.developmentOtp
         ? 'Development OTP: ' + data.developmentOtp + '\nThis is available because LOCAL_OTP_MODE is enabled.'
@@ -1828,10 +1890,11 @@ function initProfilePage() {
       method: 'POST', body: JSON.stringify({ email: user.email, otp: otpInput.value.trim() })
     });
     if (data && data.success) {
-      localStorage.setItem('localhubUser', JSON.stringify(data.user));
+          localStorage.setItem('karyamitraUser', JSON.stringify(data.user));
       applyProfileVerification(data.user);
       phoneInput.value = data.user.phone;
       otpControls.classList.add('hidden');
+      if (otpVerificationStatus) otpVerificationStatus.textContent = '✔ OTP verified. This phone number will not require verification again.';
       alert('Phone number verified successfully.');
     } else alert((data && data.error) || 'Could not verify the code.');
   });
@@ -1839,7 +1902,7 @@ function initProfilePage() {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       if (confirm('Are you sure you want to log out?')) {
-        localStorage.removeItem('localhubUser');
+        localStorage.removeItem('karyamitraUser');
         window.location.href = 'index.html';
       }
     });
@@ -1940,9 +2003,24 @@ function initProfilePage() {
   }
 
   if (settings) {
-    settings.addEventListener('click', () => {
-      document.getElementById('phoneNumberInput')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      document.getElementById('phoneNumberInput')?.focus();
+    settings.addEventListener('click', async () => {
+      const [profileData, historyData] = await Promise.all([
+        fetchJson('/user/profile?email=' + encodeURIComponent(user.email || '')),
+        fetchJson(historyUrl())
+      ]);
+      const profile = profileData && profileData.success ? profileData.user : user;
+      const history = historyData && historyData.success ? historyData : { myJobs: [], myServices: [], myPosts: [], jobCount: 0, serviceCount: 0, postCount: 0 };
+      const activityRows = [
+        ['Work', history.jobCount],
+        ['Services', history.serviceCount],
+        ['Community posts', history.postCount]
+      ].map(([label, count]) => '<div class="account-summary-row"><span>' + label + '</span><strong>' + count + '</strong></div>').join('');
+      const modalContent = '<div class="account-summary">' +
+        '<p class="account-summary-status">' + (profile.phoneVerified ? '✔ Phone / OTP verified' : 'Phone not verified') + '</p>' +
+        '<div class="account-summary-contact"><span>Email</span><strong>' + (profile.email || 'Not available') + '</strong><span>Phone</span><strong>' + (profile.phone || 'Not provided') + '</strong></div>' +
+        '<h3>Activity totals</h3>' + activityRows +
+        '</div>';
+      showCustomModal('⚙️ Account & Privacy', modalContent);
       announceVoiceAction('Opening account and privacy settings.');
     });
   }
@@ -2028,7 +2106,7 @@ function setupInteractivePostModal() {
   if (selectCommunityBtn) selectCommunityBtn.addEventListener('click', () => openPostForm('community'));
 
   const user = getCurrentUser();
-  const curLoc = localStorage.getItem('localhubLocation') || 'Hyderabad, Telangana';
+  const curLoc = localStorage.getItem('karyamitraLocation') || 'Hyderabad, Telangana';
 
   if (document.getElementById('jobPosterNameInput')) document.getElementById('jobPosterNameInput').value = user.name || '';
   if (document.getElementById('jobPhoneInput')) document.getElementById('jobPhoneInput').value = user.phone || '';

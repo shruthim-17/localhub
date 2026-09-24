@@ -1,10 +1,10 @@
-const CACHE_NAME = 'localhub-shell-v1';
+const CACHE_NAME = 'karyamitra-shell-v2';
 const APP_SHELL = [
   '/index.html',
   '/styles.css',
   '/script.js',
   '/manifest.json',
-  '/assets/localhub-icon.svg'
+  '/assets/karyamitra-original.jpeg'
 ];
 
 self.addEventListener('install', event => {

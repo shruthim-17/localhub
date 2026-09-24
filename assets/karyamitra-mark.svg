@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 320" role="img" aria-labelledby="title desc">
+  <title id="title">KaryaMitra mark</title>
+  <desc id="desc">Blue and green people joining hands beneath a golden sun.</desc>
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1478d4"/><stop offset="1" stop-color="#06498e"/></linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#42bf5b"/><stop offset="1" stop-color="#07935f"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb51b"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>
+  </defs>
+  <circle cx="92" cy="56" r="28" fill="url(#blue)"/>
+  <path d="M54 97c0-21 17-38 38-38s38 17 38 38v112c0 22-17 39-38 39s-38-17-38-39z" fill="url(#blue)"/>
+  <circle cx="295" cy="74" r="27" fill="url(#green)"/>
+  <path d="M241 117c24-22 62-29 92-10l19 12c9 6 10 18 1 25l-63 45-25-22c-9-8-21-9-31-3l-25 15c-10 6-22-1-23-12-1-7 3-13 9-17z" fill="url(#green)"/>
+  <path d="M87 176c29-42 64-69 105-82 19-6 31 15 16 27l-54 44c-11 9-10 25 1 33l55 39c11 8 9 25-4 30-19 7-39 4-54-8l-65-51z" fill="url(#blue)"/>
+  <path d="M216 204l33 37 47 55c7 8 1 21-10 21h-30c-8 0-15-3-21-9l-68-77 34-28c5-4 12-4 17 1z" fill="url(#green)"/>
+  <path d="M206 94c5-35 34-60 69-60s64 25 69 60c-19-18-42-27-69-27s-50 9-69 27z" fill="url(#gold)"/>
+  <g fill="url(#gold)" stroke="url(#gold)" stroke-linecap="round" stroke-width="11">
+    <path d="M275 13V-11"/><path d="M234 26L221 6"/><path d="M317 26l13-20"/><path d="M203 61l-22-5"/>
+  </g>
+  <path d="M329 283c12-14 21-31 26-51 4 27-6 51-29 69-10 8-22 13-35 15 9-9 12-20 5-31 12 1 23 0 33-2z" fill="url(#green)"/>
+</svg>
